@@ -9,13 +9,17 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+)
+
+const (
+	local  = "/local"
+	remote = "/remote"
 )
 
 // imgCmd represents the image command
@@ -53,8 +57,9 @@ wabeltools image local --compress "path/to/image.jpg" "path/to/other/image.jpg"`
 	Run: func(cmd *cobra.Command, args []string) {
 		// Check if the user provided a list of URLs
 		if len(args) == 0 {
-			log.Fatal("Please provide at list one URL as argument\n" +
+			fmt.Println("Please provide at list one URL as argument\n" +
 				"Example: wabeltools image local --compress \"/path/to/my_image.png\"")
+			os.Exit(1)
 		}
 
 		// Create a buffer to store our request body
@@ -67,7 +72,8 @@ wabeltools image local --compress "path/to/image.jpg" "path/to/other/image.jpg"`
 		for _, path := range args {
 			file, err := os.Open(path)
 			if err != nil {
-				log.Fatal(err)
+				fmt.Println(err)
+				os.Exit(1)
 			}
 			defer file.Close()
 
@@ -77,18 +83,21 @@ wabeltools image local --compress "path/to/image.jpg" "path/to/other/image.jpg"`
 			// Create a new form-data header with the file name
 			part, err := multiPartWriter.CreateFormFile("img", fileName)
 			if err != nil {
-				log.Fatal(err)
+				fmt.Println(err)
+				os.Exit(1)
 			}
 
 			// Copy the file into the form-data part
 			if _, err := io.Copy(part, file); err != nil {
-				log.Fatal(err)
+				fmt.Println(err)
+				os.Exit(1)
 			}
 		}
 
 		// We have to close the multipart writer after we added all the files
 		if err := multiPartWriter.Close(); err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 
 		// Now we can create the request with our body, note that we're also setting the Content-Type header here
@@ -96,10 +105,11 @@ wabeltools image local --compress "path/to/image.jpg" "path/to/other/image.jpg"`
 		if len(args) > 1 {
 			manyOrNot = "/many"
 		}
-		url := fmt.Sprintf("%s/local%s", imgURL, manyOrNot)
+		url := fmt.Sprintf("%s%s%s", imgURL, local, manyOrNot)
 		req, err := http.NewRequest("POST", url, &requestBody)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 		req.Header.Add("X-API-KEY", viper.GetString("apikey"))
 		req.Header.Set("Content-Type", multiPartWriter.FormDataContentType())
@@ -119,22 +129,38 @@ wabeltools image local --compress "path/to/image.jpg" "path/to/other/image.jpg"`
 		client := &http.Client{}
 		response, err := client.Do(req)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 		defer response.Body.Close()
 
 		// Read body
 		body, err := io.ReadAll(response.Body)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		// Save the processed zip file
+		if len(args) > 1 {
+			filename := "processed_" + strconv.Itoa(len(args)) + "_images.zip"
+			err = os.WriteFile(filename, body, 0666)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			fmt.Printf("Processed images saved as '%s'\n", filename)
+			return
 		}
 
 		// Save the processed image
-		err = os.WriteFile("processed_", body, 0666)
+		filename := "processed_" + filepath.Base(args[0])
+		err = os.WriteFile(filename, body, 0666)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
-		fmt.Printf("Processed image saved as 'processed_%s'\n", "")
+		fmt.Printf("Processed image saved as '%s'\n", filename)
 	},
 }
 
@@ -152,8 +178,9 @@ wabeltools image remote --compress "https://www.wabel.com/images/logo.png" "http
 	Run: func(cmd *cobra.Command, args []string) {
 		// Check if the user provided a list of URLs
 		if len(args) == 0 {
-			log.Fatal("Please provide at list one URL as argument\n" +
+			fmt.Println("Please provide at list one URL as argument\n" +
 				"Example: wabeltools image remote --compress \"https://www.wabel.com/images/logo.png\"")
+			os.Exit(1)
 		}
 
 		// Now we can create the request
@@ -161,10 +188,11 @@ wabeltools image remote --compress "https://www.wabel.com/images/logo.png" "http
 		if len(args) > 1 {
 			manyOrNot = "/many"
 		}
-		url := fmt.Sprintf("%s/remote%s", imgURL, manyOrNot)
+		url := fmt.Sprintf("%s%s%s", imgURL, remote, manyOrNot)
 		req, err := http.NewRequest("POST", url, nil)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 		req.Header.Add("X-API-KEY", viper.GetString("apikey"))
 
@@ -188,23 +216,37 @@ wabeltools image remote --compress "https://www.wabel.com/images/logo.png" "http
 		client := &http.Client{}
 		response, err := client.Do(req)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 		defer response.Body.Close()
 
 		// Read body
 		body, err := io.ReadAll(response.Body)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 
-		fmt.Println(url)
+		// Save the processed zip file
+		if len(args) > 1 {
+			filename := "processed_" + strconv.Itoa(len(args)) + "_images.zip"
+			err = os.WriteFile(filename, body, 0666)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			fmt.Printf("Processed images saved as '%s'\n", filename)
+			return
+		}
 
 		// Save the processed image
-		err = os.WriteFile("processed_"+filepath.Base(args[0]), body, 0666)
+		filename := "processed_" + filepath.Base(args[0])
+		err = os.WriteFile(filename, body, 0666)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
-		fmt.Printf("Processed image saved as 'processed_%s'\n", filepath.Base(args[0]))
+		fmt.Printf("Processed image saved as '%s'\n", filename)
 	},
 }

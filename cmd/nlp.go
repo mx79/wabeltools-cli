@@ -7,21 +7,21 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"io"
-	"log"
 	"net/http"
+	"os"
 
 	"github.com/spf13/cobra"
 )
 
 const (
-	ner        = "ner"
-	posTagging = "pos-tagging"
-	sentiment  = "sentiment"
-	segmenter  = "segmenter"
-	rake       = "rake"
-	stemming   = "stemming"
-	stopwords  = "stopwords"
-	wer        = "wer"
+	ner        = "/ner"
+	posTagging = "/pos-tagging"
+	sentiment  = "/sentiment"
+	segmenter  = "/segmenter"
+	rake       = "/rake"
+	stemming   = "/stemming"
+	stopwords  = "/stopwords"
+	wer        = "/wer"
 )
 
 // nlpCmd represents the nlp command
@@ -34,7 +34,7 @@ For example:
 
 wabeltools nlp sentiment "I love you"
 wabeltools nlp rake "I love you"
-wabeltools nlp stemming "I like to eat apples"`,
+wabeltools nlp stem "I like to eat apples"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Missing required subcommand.\n" +
 			"Please use one of the following subcommands: ner, pos-tagging, sentiment, segmenter, rake, stemming, stopwords, wer")
@@ -74,16 +74,17 @@ var nlpNerCmd = &cobra.Command{
 
 For example:
 
-wabeltools nlp ner "My string to apply NER on"
-=> {}`,
+wabeltools nlp ner "My string to apply NER on"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			log.Fatal("Please provide one string to analyze with Named entity recognition")
+			fmt.Println("Please provide one string to analyze with Named entity recognition")
+			os.Exit(1)
 		}
-		url := fmt.Sprintf("%s/%s?text=%s", nlpURL, ner, args[0])
+		url := fmt.Sprintf("%s%s?text=%s", nlpURL, ner, args[0])
 		res, err := nlpRequest(url)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 		fmt.Println(string(res))
 	},
@@ -91,7 +92,7 @@ wabeltools nlp ner "My string to apply NER on"
 
 // nlpPosTaggingCmd represents the nlp posTagging command
 var nlpPosTaggingCmd = &cobra.Command{
-	Use:   "pos-tagging",
+	Use:   "tag",
 	Short: "Pos tagging",
 	Long: `Pos tagging is the task of marking up a word in a text as corresponding to a particular part of speech, based on both its definition and its context.
 
@@ -100,12 +101,14 @@ For example:
 wabeltools nlp pos-tagging "My string to apply pos tagging on"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			log.Fatal("Please provide one string to apply pos tagging on")
+			fmt.Println("Please provide one string to apply pos tagging on")
+			os.Exit(1)
 		}
-		url := fmt.Sprintf("%s/%s?text=%s", nlpURL, posTagging, args[0])
+		url := fmt.Sprintf("%s%s?text=%s", nlpURL, posTagging, args[0])
 		res, err := nlpRequest(url)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 		fmt.Println(string(res))
 	},
@@ -122,12 +125,14 @@ For example:
 wabeltools nlp sentiment "My string to analyze sentiment on"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			log.Fatal("Please provide one string to analyze sentiment on")
+			fmt.Println("Please provide one string to analyze sentiment on")
+			os.Exit(1)
 		}
-		url := fmt.Sprintf("%s/%s?text=%s", nlpURL, sentiment, args[0])
+		url := fmt.Sprintf("%s%s?text=%s", nlpURL, sentiment, args[0])
 		res, err := nlpRequest(url)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 		fmt.Println(string(res))
 	},
@@ -135,7 +140,7 @@ wabeltools nlp sentiment "My string to analyze sentiment on"`,
 
 // nlpSegmenter represents the nlp segmenter command
 var nlpSegmenter = &cobra.Command{
-	Use:   "segmenter",
+	Use:   "segment",
 	Short: "Segmentation",
 	Long: `Segmentation is the task of dividing a string of written language into its component parts (segments).
 
@@ -144,12 +149,14 @@ For example:
 wabeltools nlp segmenter "My string to segment"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			log.Fatal("Please provide one string to segment")
+			fmt.Println("Please provide one string to segment")
+			os.Exit(1)
 		}
-		url := fmt.Sprintf("%s/%s?text=%s", nlpURL, segmenter, args[0])
+		url := fmt.Sprintf("%s%s?text=%s", nlpURL, segmenter, args[0])
 		res, err := nlpRequest(url)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 		fmt.Println(string(res))
 	},
@@ -166,12 +173,14 @@ For example:
 waebeltools nlp rake "My string to get rake score"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			log.Fatal("Please provide one string to get rake score")
+			fmt.Println("Please provide one string to get rake score")
+			os.Exit(1)
 		}
-		url := fmt.Sprintf("%s/%s?text=%s", nlpURL, rake, args[0])
+		url := fmt.Sprintf("%s%s?text=%s", nlpURL, rake, args[0])
 		res, err := nlpRequest(url)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 		fmt.Println(string(res))
 	},
@@ -179,7 +188,7 @@ waebeltools nlp rake "My string to get rake score"`,
 
 // nlpStemmingCmd represents the nlp stemming command
 var nlpStemmingCmd = &cobra.Command{
-	Use:   "stemming",
+	Use:   "stem",
 	Short: "Stemming",
 	Long: `Stemming is the process of reducing inflected (or sometimes derived) words to their word stem, base or root form—generally a written word form.
 
@@ -188,12 +197,14 @@ For example:
 wabeltools nlp stemming "My string to stem"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			log.Fatal("Please provide one string to stem")
+			fmt.Println("Please provide one string to stem")
+			os.Exit(1)
 		}
-		url := fmt.Sprintf("%s/%s?text=%s", nlpURL, stemming, args[0])
+		url := fmt.Sprintf("%s%s?text=%s", nlpURL, stemming, args[0])
 		res, err := nlpRequest(url)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 		fmt.Println(string(res))
 	},
@@ -211,12 +222,14 @@ wabeltools nlp stopwords "My string to remove stopwords from"
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			log.Fatal("Please provide one string to remove stopwords from")
+			fmt.Println("Please provide one string to remove stopwords from")
+			os.Exit(1)
 		}
-		url := fmt.Sprintf("%s/%s?text=%s", nlpURL, stopwords, args[0])
+		url := fmt.Sprintf("%s%s?text=%s", nlpURL, stopwords, args[0])
 		res, err := nlpRequest(url)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 		fmt.Println(string(res))
 	},
@@ -233,12 +246,14 @@ For example:
 wabeltools nlp wer "My string to compare" "My string to compare with"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 2 {
-			log.Fatal("Please provide two strings to compare with word error rate")
+			fmt.Println("Please provide two strings to compare with word error rate")
+			os.Exit(1)
 		}
-		url := fmt.Sprintf("%s/%s?text1=%s&text2=%s", nlpURL, wer, args[0], args[1])
+		url := fmt.Sprintf("%s%s?text1=%s&text2=%s", nlpURL, wer, args[0], args[1])
 		res, err := nlpRequest(url)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 		fmt.Println(string(res))
 	},

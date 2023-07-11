@@ -65,17 +65,7 @@ Add the directory containing the downloaded binary to your system's PATH and you
 You can use the Wabeltools CLI by running wabeltools in your terminal, followed by the various commands and flags
 available. For instance:
 
-```bash
-wabeltools init "your-api-key"
-```
-
-To get your remaining tokens of the day:
-
-```bash
-wabeltools tokens
-```
-
-To get the list of cost of the different services:
+To get the list of costs for all services:
 
 ```bash
 wabeltools costs
@@ -85,6 +75,20 @@ To get the list of available services:
 
 ```bash
 wabeltools services
+```
+
+To start to use any service, you will have to provide your API key from Wabel Tools. You can do so by running the following command:
+
+```bash
+wabeltools init "your-api-key"
+```
+
+And then:
+
+To get your remaining tokens of the day:
+
+```bash
+wabeltools tokens
 ```
 
 To get the list of available image processing methods:
@@ -113,10 +117,10 @@ For example, you can apply different text processing methods to a text with the 
 ```bash
 wabeltools nlp stopwords --lang="fr" "C'est un text en français" >> "path/to/output"
 wabeltools nlp sentiment "I love you"
-wabeltools nlp stemming "I want to stem this sentence" > "path/to/output"
-wabeltools nlp segmenter "I want to segment this text"
+wabeltools nlp stem "I want to stem this sentence" > "path/to/output"
+wabeltools nlp segment "I want to segment this text"
 wabeltools nlp ner "I want to extract entities from this text"
-wabeltools nlp pos-tagging "I want to tag this text"
+wabeltools nlp tag "I want to tag this text"
 wabeltools nlp rake "I need the rake score of this sentence"
 wabeltools nlp wer "I would like to get" "the word error rate of this two texts"
 ```

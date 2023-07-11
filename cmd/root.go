@@ -45,6 +45,9 @@ wabeltools nlp stopwords --lang=en "Je vis à Paris, en France."`,
 		if cmd.Name() == "init" {
 			return
 		}
+		if cmd.Name() == "help" {
+			return
+		}
 		home, _ := os.UserHomeDir()
 		configPath := filepath.Join(home, configFileName)
 		apikey, err := os.ReadFile(configPath)
@@ -69,5 +72,5 @@ func init() {
 	viper.ReadInConfig()
 
 	// Add subcommands
-	rootCmd.AddCommand(initCmd, imgCmd, nlpCmd)
+	rootCmd.AddCommand(initCmd, tokensCmd, costsCmd, servicesCmd, imgCmd, nlpCmd)
 }
