@@ -5,6 +5,9 @@
 # Exit on any error
 set -e
 
+# Remove the binaries directory
+rm -rf binaries
+
 # Create the binaries directory
 mkdir -p binaries
 
