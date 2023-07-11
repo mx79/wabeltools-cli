@@ -2,9 +2,23 @@
 *.test
 *.prof
 *.out
-*.md
 
 # Dossiers à ignorer
 vendor/
 bin/
 .idea/
+
+# Wabel Tools
+wabeltools
+
+# Images
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.webp
+
+# Text
+*.txt
+*.pdf
