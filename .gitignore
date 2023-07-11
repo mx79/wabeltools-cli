@@ -1,0 +1,10 @@
+# Fichiers à ignorer
+*.test
+*.prof
+*.out
+*.md
+
+# Dossiers à ignorer
+vendor/
+bin/
+.idea/
